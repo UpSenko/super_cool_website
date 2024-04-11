@@ -3,6 +3,34 @@ window.onload = function() {
     var audio = document.getElementById('audio');
     var canvas = document.getElementById('asciiCanvas');
     var ctx = canvas.getContext('2d');
+    var downloadButton = document.getElementById('downloadButton');
+
+    downloadButton.addEventListener('click', function() {
+        var videoUrl = document.getElementById('videoUrl').value;
+        if (!videoUrl) {
+            alert('Please enter a valid video URL.');
+            return;
+        }
+        downloadVideoAndAudio(videoUrl);
+    });
+
+    function downloadVideoAndAudio(videoUrl) {
+        // Extract video ID from YouTube URL
+        var videoId = videoUrl.split('v=')[1];
+        var ampersandPosition = videoId.indexOf('&');
+        if (ampersandPosition !== -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+        }
+
+        var videoDownloadUrl = 'https://www.youtubeinmp4.com/';
+        videoDownloadUrl += 'youtube.php?video=https://www.youtube.com/watch?v=' + videoId;
+
+        // Set video source
+        video.src = videoDownloadUrl;
+
+        // Set audio source
+        audio.src = 'https://www.youtubeinmp3.com/download/?video=' + videoUrl;
+    }
 
     video.addEventListener('play', function() {
         audio.play(); // Start audio playback along with video
