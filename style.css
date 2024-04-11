@@ -1,0 +1,14 @@
+body {
+    font-family: monospace;
+    background-color: black;
+    color: white;
+}
+
+video {
+    display: none; /* Hide the video element */
+}
+
+canvas {
+    display: block;
+    margin: 20px auto;
+}
