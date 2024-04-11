@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <label for="videoUrl">Enter video URL:</label>
+    <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+    <button id="downloadButton">Download Video</button>
     <video id="video" width="640" height="360" controls autoplay>
-        <source src="video.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
     <audio id="audio" controls autoplay>
-        <source src="audio.mp3" type="audio/mp3">
         Your browser does not support the audio tag.
     </audio>
     <canvas id="asciiCanvas"></canvas>
