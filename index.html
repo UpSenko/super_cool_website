@@ -1,22 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Art Video Player</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Downloader</title>
 </head>
 <body>
-    <label for="videoUrl">Enter video URL:</label>
-    <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
-    <button id="downloadButton">Download Video</button>
-    <video id="video" width="640" height="360" controls autoplay>
-        Your browser does not support the video tag.
-    </video>
-    <audio id="audio" controls autoplay>
-        Your browser does not support the audio tag.
-    </audio>
-    <canvas id="asciiCanvas"></canvas>
-    <script src="script.js"></script>
+<h1>Video Downloader</h1>
+<input type="text" id="videoUrlInput" placeholder="Enter YouTube Video URL">
+<button id="downloadButton">Download</button>
+<div id="consoleLog"></div>
+<script>
+window.onload = function() {
+    var consoleLog = document.getElementById('consoleLog');
+
+    function logToConsole(message) {
+        var logElement = document.createElement('p');
+        logElement.textContent = message;
+        consoleLog.appendChild(logElement);
+    }
+
+    var downloadButton = document.getElementById('downloadButton');
+
+    downloadButton.addEventListener('click', function() {
+        var videoUrlInput = document.getElementById('videoUrlInput');
+        var videoUrl = videoUrlInput.value.trim();
+
+        if (!videoUrl) {
+            alert('Please enter a valid video URL.');
+            return;
+        }
+
+        logToConsole('Downloading video from: ' + videoUrl);
+
+        downloadVideoAndAudio(videoUrl);
+    });
+
+    function downloadVideoAndAudio(videoUrl) {
+        var videoId = extractVideoId(videoUrl);
+
+        var videoDownloadUrl = 'https://www.youtubeinmp4.com/';
+        videoDownloadUrl += 'youtube.php?video=https://www.youtube.com/watch?v=' + videoId;
+
+        // Set video source
+        var video = document.createElement('video');
+        video.setAttribute('id', 'video');
+        video.src = videoDownloadUrl;
+        video.style.display = 'none'; // Hide the video element
+        document.body.appendChild(video);
+
+        // Set audio source
+        var audio = document.createElement('audio');
+        audio.setAttribute('id', 'audio');
+        audio.src = 'https://www.youtubeinmp3.com/download/?video=' + videoUrl;
+        audio.style.display = 'none'; // Hide the audio element
+        document.body.appendChild(audio);
+
+        logToConsole('Video and audio sources set.');
+
+        // Simulate video play to start processing frames
+        video.play();
+    }
+
+    function extractVideoId(videoUrl) {
+        var regex = /[?&]v=([^&]+)/;
+        var match = videoUrl.match(regex);
+        if (match && match[1]) {
+            return match[1];
+        } else {
+            return null;
+        }
+    }
+
+    var video = document.getElementById('video');
+    var audio = document.getElementById('audio');
+
+    video.addEventListener('play', function() {
+        logToConsole('Video started playing.');
+
+        var canvas = document.createElement('canvas');
+        canvas.setAttribute('id', 'asciiCanvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        document.body.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+
+        var asciiInterval = setInterval(function() {
+            if (video.paused || video.ended) {
+                clearInterval(asciiInterval);
+                return;
+            }
+
+            processVideoFrame(ctx, canvas);
+        }, 1000 / 30); // Target frame rate: 30 FPS
+
+        function processVideoFrame(ctx, canvas) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var asciiArt = convertFrameToAscii(imageData);
+            renderAsciiArt(ctx, asciiArt);
+        }
+
+        function convertFrameToAscii(imageData) {
+            var asciiArt = '';
+            for (var i = 0; i < imageData.data.length; i += 4) {
+                var avg = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+                var index = Math.round(avg * (CUSTOM_ASCII_CHARS.length - 1) / 255);
+                asciiArt += CUSTOM_ASCII_CHARS[index];
+                if ((i + 4) % (canvas.width * 4) === 0) {
+                    asciiArt += '\n';
+                }
+            }
+            return asciiArt;
+        }
+
+        function renderAsciiArt(ctx, asciiArt) {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Render ASCII art
+            ctx.font = '10px monospace';
+            ctx.fillStyle = 'white';
+            var lines = asciiArt.split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                ctx.fillText(lines[i], 0, i * 10);
+            }
+        }
+    });
+
+    // Custom ASCII characters
+    var CUSTOM_ASCII_CHARS = ['@', '#', 'S', '%', '?', '*', '+', ';', ':', ',', '.'];
+
+};
+</script>
 </body>
 </html>
